@@ -50,6 +50,7 @@ function draw_marker(map, id, lng, lat, title) {
     });
 }
 
+// filters away the points which are not on roads
 function filter_unreasonable_points(list_of_points){
     filtered_points = [];
     var parks = "parks";
@@ -73,6 +74,8 @@ function filter_unreasonable_points(list_of_points){
     return filtered_points;
 }
 
+//If endIdx > N then gets N random numbers 
+//else will get less than N points
 function get_N_random_numbers(N, endIdx){
     var unique_indexes = {};
     if (endIdx > N){
