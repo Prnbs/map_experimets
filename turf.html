@@ -61,33 +61,14 @@ function get_N_random_numbers(N, endIdx){
     return unique_indexes;
 }
 
-
-// L.mapbox.accessToken = 'pk.eyJ1IjoicHJuYnMiLCJhIjoiY2ltYmFzM3ZoMDQxNHYybHU0MDFyYmtlcSJ9.pRgM-3piGkDybLiSQ44jug';
-// var map = L.mapbox.map('map', 'mapbox.emerald')
-//     .setView([37.773972, -122.431297], 14);
-
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3NhcmFuZ2kxMjMiLCJhIjoiY2ltOWpmeno4MDNwNHRubTZobW50Y2ljZiJ9.yidy_pQjADEQ8vD7j_m1hw';
 
- map = new mapboxgl.Map({
+map = new mapboxgl.Map({
                     container: 'map', // container id
                     style: 'mapbox://styles/mapbox/streets-v8', //stylesheet location
                     center: [-122.431297, 37.773972], // starting position
                     zoom: 14 // starting zoom
                 });
-
-
-
-// var RADIUS = 1000;
-// var filterCircle = L.circle(L.latLng(40, -75), RADIUS, {
-//     opacity: 1,
-//     weight: 1,
-//     fillOpacity: 0.1
-// }).addTo(map);
-
-
-// var featureLayer = L.mapbox.featureLayer(geojson)
-//     .setFilter(function() { return true;})
-//     .addTo(map);
 
 map.on('click', function(e) {
         var center_feature = {
@@ -111,15 +92,7 @@ map.on('click', function(e) {
             var coords = list_of_points[random_indexes[key]];
             draw_marker(map, random_indexes[key]+"this", coords[0], coords[1], random_indexes[key]+"")
         }
-
-
-        // for( var i = 0; i < list_of_points.length; i++){
-        //     var coords = list_of_points[i];
-        //     draw_marker(map, i+"this", coords[0], coords[1], i+"")
-        // }
     });
-
-
 
 </script>
 </body>
