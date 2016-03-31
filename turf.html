@@ -50,12 +50,42 @@ function draw_marker(map, id, lng, lat, title) {
     });
 }
 
+function filter_unreasonable_points(list_of_points){
+    filtered_points = [];
+    var parks = "parks";
+    var water = "water";
+    var road = "road";
+    for (var i = 0; i < list_of_points.length; i++){
+        var coords = list_of_points[i];
+        var point = map.project({'lng':coords[0], 'lat':coords[1]})
+        var features = map.queryRenderedFeatures(point);
+        for(var j = 0; j < features.length; j++){
+            var obj = features[j]['layer']['id'];
+            // if(obj.indexOf(parks) == -1 && obj.indexOf(water) == -1){
+            //     filtered_points.push(list_of_points[i]);
+            // }
+            if(obj.indexOf(road) > -1){
+                filtered_points.push(list_of_points[i]);
+            }
+        }
+
+    }
+    return filtered_points;
+}
+
 function get_N_random_numbers(N, endIdx){
     var unique_indexes = {};
-    while (Object.keys(unique_indexes).length < N){
-        var rand = Math.floor(Math.random() * (endIdx + 1));
-        if (!(rand in unique_indexes)){
-            unique_indexes[rand] = rand;
+    if (endIdx > N){
+        while (Object.keys(unique_indexes).length < N){
+            var rand = Math.floor(Math.random() * (endIdx + 1));
+            if (!(rand in unique_indexes)){
+                unique_indexes[rand] = rand;
+            }
+        }
+    }
+    else {
+        for (var i = 0; i <= endIdx; i++){
+            unique_indexes[i] = i;
         }
     }
     return unique_indexes;
@@ -73,6 +103,7 @@ map = new mapboxgl.Map({
 map.on('click', function(e) {
         var center_feature = {
             'type' : 'Features',
+            "properties": {},
             'geometry' : {
                 'type' : 'Point',
                 'coordinates' : [e['lngLat']['lng'], e['lngLat']['lat']]
@@ -83,13 +114,21 @@ map.on('click', function(e) {
         };
 
         var one_mile_out = turf.buffer(center_feature, 1, 'miles');
+        var result = turf.featurecollection([one_mile_out, center_feature]);
         var features = one_mile_out['features']
         var geometry = features[0]['geometry']
         var list_of_points = geometry['coordinates'][0]
-        var random_indexes = get_N_random_numbers(5, list_of_points.length);
+        var filtered_points = filter_unreasonable_points(list_of_points);
+        var random_indexes = get_N_random_numbers(5, filtered_points.length);
 
         for (var key in random_indexes){
-            var coords = list_of_points[random_indexes[key]];
+            var coords = filtered_points[random_indexes[key]];
+            var point = map.project({'lng':coords[0], 'lat':coords[1]})
+            var features = map.queryRenderedFeatures(point);
+            for(var i = 0; i < features.length; i++){
+                var obj = features[i]['layer']['id'];
+                console.log(obj);
+            }
             draw_marker(map, random_indexes[key]+"this", coords[0], coords[1], random_indexes[key]+"")
         }
     });

@@ -35,12 +35,12 @@ var map = new mapboxgl.Map({
     zoom: 14
 });
 
-var RADIUS = 1000;
-var filterCircle = L.circle(L.latLng(37, -122.4), RADIUS, {
-    opacity: 1,
-    weight: 1,
-    fillOpacity: 0.4
-}).addTo(map);
+// var RADIUS = 1000;
+// var filterCircle = L.circle(L.latLng(37, -122.4), RADIUS, {
+//     opacity: 1,
+//     weight: 1,
+//     fillOpacity: 0.4
+// }).addTo(map);
 
 map.on('mousemove', function (e) {
     var features = map.queryRenderedFeatures(e.point);
