@@ -5,6 +5,9 @@
 <title>Marker radius search</title>
 <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.js'></script>
+
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet' />
 <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.3.0/turf.min.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
 <style>
@@ -17,9 +20,62 @@
 <div id='map'></div>
 
 <script>
-L.mapbox.accessToken = 'pk.eyJ1IjoicHJuYnMiLCJhIjoiY2ltYmFzM3ZoMDQxNHYybHU0MDFyYmtlcSJ9.pRgM-3piGkDybLiSQ44jug';
-var map = L.mapbox.map('map', 'mapbox.emerald')
-    .setView([37.773972, -122.431297], 14);
+function draw_marker(map, id, lng, lat, title) {
+    map.addSource(id, {
+        "type": "geojson",
+        "data": {
+            "type": "Feature",
+            "geometry": {
+                    "type": "Point",
+                    "coordinates": [lng, lat]
+            },
+            "properties": {
+                "title": title,
+                "marker-symbol": "monument"
+            }
+        }
+    });
+
+    map.addLayer({
+        "id": id,
+        "type": "symbol",
+        "source": id,
+        "layout": {
+            "icon-image": "{marker-symbol}-15",
+            "text-field": "{title}",
+            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+            "text-offset": [0, 0.6],
+            "text-anchor": "top"
+        }
+    });
+}
+
+function get_N_random_numbers(N, endIdx){
+    var unique_indexes = {};
+    while (Object.keys(unique_indexes).length < N){
+        var rand = Math.floor(Math.random() * (endIdx + 1));
+        if (!(rand in unique_indexes)){
+            unique_indexes[rand] = rand;
+        }
+    }
+    return unique_indexes;
+}
+
+
+// L.mapbox.accessToken = 'pk.eyJ1IjoicHJuYnMiLCJhIjoiY2ltYmFzM3ZoMDQxNHYybHU0MDFyYmtlcSJ9.pRgM-3piGkDybLiSQ44jug';
+// var map = L.mapbox.map('map', 'mapbox.emerald')
+//     .setView([37.773972, -122.431297], 14);
+
+mapboxgl.accessToken = 'pk.eyJ1Ijoic3NhcmFuZ2kxMjMiLCJhIjoiY2ltOWpmeno4MDNwNHRubTZobW50Y2ljZiJ9.yidy_pQjADEQ8vD7j_m1hw';
+
+ map = new mapboxgl.Map({
+                    container: 'map', // container id
+                    style: 'mapbox://styles/mapbox/streets-v8', //stylesheet location
+                    center: [-122.431297, 37.773972], // starting position
+                    zoom: 14 // starting zoom
+                });
+
+
 
 // var RADIUS = 1000;
 // var filterCircle = L.circle(L.latLng(40, -75), RADIUS, {
@@ -38,16 +94,33 @@ map.on('click', function(e) {
             'type' : 'Features',
             'geometry' : {
                 'type' : 'Point',
-                'coordinates' : [e.latlng.lng, e.latlng.lat]
+                'coordinates' : [e['lngLat']['lng'], e['lngLat']['lat']]
             },
             'properties' : {
                 'name' : 'Null island'
             }
         };
 
-        var one_mile_out = turf.buffer(center_feature, 2, 'miles');
-        alert(one_mile_out);
+        var one_mile_out = turf.buffer(center_feature, 1, 'miles');
+        var features = one_mile_out['features']
+        var geometry = features[0]['geometry']
+        var list_of_points = geometry['coordinates'][0]
+        var random_indexes = get_N_random_numbers(5, list_of_points.length);
+
+        for (var key in random_indexes){
+            var coords = list_of_points[random_indexes[key]];
+            draw_marker(map, random_indexes[key]+"this", coords[0], coords[1], random_indexes[key]+"")
+        }
+
+
+        // for( var i = 0; i < list_of_points.length; i++){
+        //     var coords = list_of_points[i];
+        //     draw_marker(map, i+"this", coords[0], coords[1], i+"")
+        // }
     });
+
+
+
 </script>
 </body>
 </html>
